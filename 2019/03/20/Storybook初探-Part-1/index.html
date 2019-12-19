@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.2">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.2" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.2">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Storybook 是一个 ui 组件开发管理的工具，我们可以通过 story 独立创建组件，并且每个组件都有一个独立开发调试环境。Storybook 是运行在主应用程序之外，不依赖于项目，因此我们不必担心开发环境、依赖等问题导致不能开发组件。Storybook 支持多个主流框架（React, Vue, Angular, Mithril, Ember）等，由于目前笔者使用的是 react 技术栈">
+<meta name="keywords" content="前端">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Storybook初探 (Part 1)">
+<meta property="og:url" content="https:&#x2F;&#x2F;zhangtengjin.github.io&#x2F;2019&#x2F;03&#x2F;20&#x2F;Storybook%E5%88%9D%E6%8E%A2-Part-1&#x2F;index.html">
+<meta property="og:site_name" content="青忆个人博客">
+<meta property="og:description" content="Storybook 是一个 ui 组件开发管理的工具，我们可以通过 story 独立创建组件，并且每个组件都有一个独立开发调试环境。Storybook 是运行在主应用程序之外，不依赖于项目，因此我们不必担心开发环境、依赖等问题导致不能开发组件。Storybook 支持多个主流框架（React, Vue, Angular, Mithril, Ember）等，由于目前笔者使用的是 react 技术栈">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic2.zhimg.com&#x2F;80&#x2F;v2-8e4c8fca78fa6a26f19ce0822b9b763d_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic4.zhimg.com&#x2F;80&#x2F;v2-9dc05eed1d94bd42c942f05a5332ce77_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic3.zhimg.com&#x2F;80&#x2F;v2-12e710aa0fc989e0180aa572e6a0e72e_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic2.zhimg.com&#x2F;80&#x2F;v2-a744379c398d2ce7b529bd2c31e6c3fd_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic1.zhimg.com&#x2F;80&#x2F;v2-6ce08942ea462bb16011edf891318678_hd.jpg">
+<meta property="og:updated_time" content="2019-12-19T12:13:47.862Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pic2.zhimg.com&#x2F;80&#x2F;v2-8e4c8fca78fa6a26f19ce0822b9b763d_hd.jpg">
+
+<link rel="canonical" href="https://zhangtengjin.github.io/2019/03/20/Storybook%E5%88%9D%E6%8E%A2-Part-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Storybook初探 (Part 1) | 青忆个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">青忆个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">slowly</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhangtengjin.github.io/2019/03/20/Storybook%E5%88%9D%E6%8E%A2-Part-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/qy_header1.jpeg">
+      <meta itemprop="name" content="qing yi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="青忆个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Storybook初探 (Part 1)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-03-20 09:53:26" itemprop="dateCreated datePublished" datetime="2019-03-20T09:53:26+08:00">2019-03-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-19 20:13:47" itemprop="dateModified" datetime="2019-12-19T20:13:47+08:00">2019-12-19</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/2019/03/20/Storybook%E5%88%9D%E6%8E%A2-Part-1/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2019/03/20/Storybook初探-Part-1/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>Storybook 是一个 ui 组件开发管理的工具，我们可以通过 story 独立创建组件，并且每个组件都有一个独立开发调试环境。Storybook 是运行在主应用程序之外，不依赖于项目，因此我们不必担心开发环境、依赖等问题导致不能开发组件。<br>Storybook 支持多个主流框架（React, Vue, Angular, Mithril, Ember）等，由于目前笔者使用的是 react 技术栈，本文将介绍 react 项目如何配置使用 Storybook。</p>
+</blockquote><a id="more"></a>
+<h4 id="一-操作指南"><a href="#一-操作指南" class="headerlink" title="一. 操作指南"></a>一. 操作指南</h4><ol>
+<li>首先，安装@storybook/react，react, react-dom, babel-core 等项目所需基础库。在 package.json 文件中添加 “storybook”: “start-storybook -p 9001 -c .storybook”</li>
+<li>新建文件，先看下项目目录结构</li>
+</ol>
+<p><img src="https://pic2.zhimg.com/80/v2-8e4c8fca78fa6a26f19ce0822b9b763d_hd.jpg" alt></p>
+<ul>
+<li>.storybook 文件夹存放 storybook 配置，及插件文件。</li>
+<li>src/components 存放 UI 组件。</li>
+<li>src/markdown 存放组件显示的文档等介绍。</li>
+<li>src/stories 存放 story，story 可绑定相应的组件，一个组件可以有多个不同状态的 story。</li>
+</ul>
+<ol start="3">
+<li>编写 story</li>
+</ol>
+<ul>
+<li>添加 storybook 配置文件<ul>
+<li>.config 配置文件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">import &#123; configure, addDecorator  &#125; from &apos;@storybook/react&apos;;</span><br><span class="line">import &#123; withOptions &#125; from &apos;@storybook/addon-options&apos;;</span><br><span class="line">import &#123; withNotes &#125; from &apos;@storybook/addon-notes&apos;;</span><br><span class="line">import &#123; themes &#125; from &apos;@storybook/components&apos;;</span><br><span class="line">// 全局加载装饰器</span><br><span class="line">// addDecorator(story =&gt; &lt;div style=&#123;&#123; textAlign: &apos;center&apos; &#125;&#125;&gt;&#123;story()&#125;&lt;/div&gt;);</span><br><span class="line">addDecorator(</span><br><span class="line"> withOptions(&#123;</span><br><span class="line"> // name: &apos;Foo&apos;,</span><br><span class="line"> // theme: themes.dark</span><br><span class="line"> showSearchBox: false,</span><br><span class="line"> showAddonsPanel: true,</span><br><span class="line"> addonPanelInRight : true,</span><br><span class="line"> enableShortcuts : true,</span><br><span class="line">    &#125;)</span><br><span class="line">)</span><br><span class="line">addDecorator(withNotes);</span><br><span class="line">/**</span><br><span class="line"> * 动态加载所有stories</span><br><span class="line"> */</span><br><span class="line">const req = require.context(&apos;../src/stories&apos;, true, /\.stories\.js$/);</span><br><span class="line">function loadStories() &#123;</span><br><span class="line"> req.keys().forEach(fileName =&gt; req(fileName));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">configure(loadStories, module);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<p>这里为了动态加载 stories，Storybook 使用了 Webpack 的 require.context 动态加载模块。</p>
+<ul>
+<li><p>添加 UI 组件（src/components/circle）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">import React from &apos;react&apos;</span><br><span class="line">import &apos;./style.scss&apos;</span><br><span class="line"></span><br><span class="line">export function Circle (props) &#123;</span><br><span class="line"> const defaultClass = &apos;circle_default&apos;;</span><br><span class="line"> const &#123; className, ...other &#125; = props;</span><br><span class="line"> return (</span><br><span class="line"> &lt;div</span><br><span class="line"> className=&#123;`$&#123;defaultClass&#125; $&#123;className&#125; `&#125;</span><br><span class="line"> &#123;...other&#125;</span><br><span class="line"> &gt;</span><br><span class="line"> &#123;props.children || &apos;&apos;&#125;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加 story(src/stories/circle.stories.js)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">import React from &apos;react&apos;;</span><br><span class="line">import &#123; storiesOf &#125; from &apos;@storybook/react&apos;;</span><br><span class="line">import &#123; action &#125; from &apos;@storybook/addon-actions&apos;;</span><br><span class="line"></span><br><span class="line">import &#123; withKnobs, text, boolean, number, object &#125; from &apos;@storybook/addon-knobs&apos;;</span><br><span class="line">import &#123; Circle &#125; from &apos;../components/circle&apos;;</span><br><span class="line">import &apos;../components/circle/circle-color.scss&apos;;</span><br><span class="line">import circleText from &apos;../markdown/circle.md&apos;;</span><br><span class="line"></span><br><span class="line">const stories = storiesOf(&apos;Circle&apos;, module);</span><br><span class="line">// 动态修改react组件属性(测试)</span><br><span class="line">// 可在config文件中全局配置</span><br><span class="line">stories.addDecorator(withKnobs);</span><br><span class="line">stories.add(&apos;圆点&apos;, () =&gt; (</span><br><span class="line"> &lt;div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_running&apos; onClick=&#123;action(&apos;clicked&apos;)&#125;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                运行中</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_finished&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                成功</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_stoped&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                取消</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_run_fail&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                运行失败</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_submitting&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                提交中</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_submit_failed&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                提交失败</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_submit_failed&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                上游失败</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_frozen&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                冻结</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_killed&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                已停止</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">             &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_restarting&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                重试中</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;Circle className=&apos;status_wait_submit&apos;&gt;&lt;/Circle&gt;&amp;nbsp;</span><br><span class="line">                等待提交</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line"> &lt;/div&gt;</span><br><span class="line">  ), &#123;</span><br><span class="line"> notes: &#123;</span><br><span class="line"> markdown: circleText</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">stories.add(&apos;动态修改style&apos;, () =&gt;&#123;</span><br><span class="line"> const groupId = &apos;circle&apos;;</span><br><span class="line"> const defaultStyle = &#123;</span><br><span class="line"> background: &apos;black&apos;</span><br><span class="line">    &#125;</span><br><span class="line"> const style = object(&apos;Style&apos;, defaultStyle, groupId);</span><br><span class="line"></span><br><span class="line"> return &lt;Circle style=&#123;style&#125; &gt;&lt;/Circle&gt;</span><br><span class="line">&#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="注意"><a href="#注意" class="headerlink" title="注意:"></a>注意:</h5><p><strong>1. storybook 插件都需要在 ./stroybook/addons.js 中注册才能使用，注册完之后需要重新运行项目。</strong></p>
+<p><strong>2. 这里有一个问题，在引入 markdown 作为组件文档时，其中表格渲染 border 无法显示。</strong></p>
+<p><strong>3. storybook 内部集成的 webpack 不支持 scss 类型文件。需要自定义 webpack,这里我们在原来的配置基础上实现。</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">const path = require(&quot;path&quot;);</span><br><span class="line">// 保留storybook原有默认配置 + 扩展配置</span><br><span class="line">module.exports = function (baseConfig, env, defaultConfig) &#123;</span><br><span class="line"> defaultConfig.module.rules.push(&#123;</span><br><span class="line"> test: /\.stories\.js$/,</span><br><span class="line"> loaders: [require.resolve(&apos;@storybook/addon-storysource/loader&apos;)],</span><br><span class="line"> enforce: &apos;pre&apos;,</span><br><span class="line">    &#125;, &#123;</span><br><span class="line"> test: /.(scss|sass)$/,</span><br><span class="line"> loaders: [&quot;style-loader&quot;, &quot;css-loader&quot;, &quot;sass-loader&quot;],</span><br><span class="line"> include: path.resolve(__dirname, &quot;../&quot;)</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line"> return defaultConfig;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>npm run storybook 查看效果</p>
+<p><img src="https://pic4.zhimg.com/80/v2-9dc05eed1d94bd42c942f05a5332ce77_hd.jpg" alt></p>
+<h4 id="二-插件"><a href="#二-插件" class="headerlink" title="二. 插件"></a>二. 插件</h4><p>storybook 的插件有许多，基本上有两种类型（装饰器 Decorators 和原生插件 Native Addons）<br>Decorators 通过封装 react 组件实现，比如 storybook-router。<br>Native Addons 主要是以面板的形式注入，便于管理使用组件，比如 addon-actions 等。<br>本文主要介绍几个常用的 addons,目前项目中使用到的 addons 有:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">import &apos;@storybook/addon-storysource/register&apos;;</span><br><span class="line">import &apos;@storybook/addon-notes/register&apos;;</span><br><span class="line">import &apos;@storybook/addon-knobs/register&apos;;</span><br><span class="line">import &apos;@storybook/addon-actions/register&apos;;</span><br><span class="line">import &apos;@storybook/addon-links/register&apos;;</span><br><span class="line">import &apos;@storybook/addon-options/register&apos;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="1-addon-storysource"><a href="#1-addon-storysource" class="headerlink" title="1. addon-storysource"></a>1. addon-storysource</h5><p>此插件主要是在插件面板中显示 story 源代码</p>
+<p><img src="https://pic3.zhimg.com/80/v2-12e710aa0fc989e0180aa572e6a0e72e_hd.jpg" alt></p>
+<p>安装插件之后需要在 webpack 中定义，让其在每个 story 都生成一个装饰者调用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">module.exports = function (baseConfig, env, defaultConfig) &#123;</span><br><span class="line">  defaultConfig.module.rules.push(&#123;</span><br><span class="line">    test: /\.stories\.jsx?$/,</span><br><span class="line">    loaders: [require.resolve(&apos;@storybook/addon-storysource/loader&apos;)],</span><br><span class="line">    enforce: &apos;pre&apos;,</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  return defaultConfig;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>并且可以在 options 选项中定义 printWidth 等更多优化配置格式化面板。</p>
+<h5 id="2-addon-knobs"><a href="#2-addon-knobs" class="headerlink" title="2. addon-knobs"></a>2. addon-knobs</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">import React from &apos;react&apos;;</span><br><span class="line">import &#123; storiesOf &#125; from &apos;@storybook/react&apos;;</span><br><span class="line">import SlidePanel from &apos;../components/slidePanel&apos;;</span><br><span class="line">import &#123; boolean, object, text &#125; from &apos;@storybook/addon-knobs&apos;;</span><br><span class="line">storiesOf(&apos;SlidePanel&apos;, module)</span><br><span class="line">    .add(&apos;基本用法&apos;, () =&gt;&#123;</span><br><span class="line">        const groupId = &apos;slidepanel&apos;</span><br><span class="line">        const defaultStyle = &#123;</span><br><span class="line">             right:&apos;-20px&apos;,</span><br><span class="line">            width:&apos;80%&apos;,</span><br><span class="line">            minHeight: &apos;600px&apos;,</span><br><span class="line">            height: &apos;100%&apos;</span><br><span class="line">        &#125;</span><br><span class="line">        const style = object(&apos;style&apos;, defaultStyle, groupId);</span><br><span class="line">        const defayltText = &apos;hello slidePanel&apos;</span><br><span class="line">        const children = text(&apos;children&apos;, defayltText, groupId)</span><br><span class="line">        return &lt;SlidePanel</span><br><span class="line">            visible=&#123;boolean(&apos;visible&apos;, true, groupId)&#125;</span><br><span class="line">            style=&#123;style&#125;</span><br><span class="line">            onClose=&#123;()=&gt;&#123;</span><br><span class="line">                console.log(&apos;click&apos;)</span><br><span class="line">            &#125;&#125;</span><br><span class="line">        &gt;</span><br><span class="line">            &lt;div&gt;&#123;children&#125;&lt;/div&gt;</span><br><span class="line">        &lt;/SlidePanel&gt;</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
+<p>我们在这个 story 中定义了 style、visible、children 三个动态变量传入 SlidePanel 组件，其变量类型分别对应的是 boolean、object、text。在 knob 中还可以导入许多的类型约束(number, color, array)等。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-a744379c398d2ce7b529bd2c31e6c3fd_hd.jpg" alt></p>
+<h5 id="注意："><a href="#注意：" class="headerlink" title="注意："></a>注意：</h5><p><strong>在定义动态变量时，可以通过 groupId 来分类不同组件的变量，在选项卡中将会以 groupId 在组中过滤，没有参入 groupId，将会自动分类到 All 组中。</strong></p>
+<h5 id="3-addon-actions"><a href="#3-addon-actions" class="headerlink" title="3. addon-actions"></a>3. addon-actions</h5><p>actions 可以用于显示 storybook 事件处理程序接收的数据（多个事件触发可以写成对象形式）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">import React from &apos;react&apos;;</span><br><span class="line">import &#123; storiesOf &#125; from &apos;@storybook/react&apos;;</span><br><span class="line">import &#123; action, actions, configureActions , decorate &#125; from &apos;@storybook/addon-actions&apos;;</span><br><span class="line">import &#123; Button &#125; from &apos;../components/button&apos;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 多个动作触发</span><br><span class="line">const events = actions(&#123;</span><br><span class="line">    onClick: &apos;clicked&apos;,</span><br><span class="line">    onMouseOver: &apos;hovered&apos;</span><br><span class="line">&#125;)</span><br><span class="line">// const firstArg = decorate([args =&gt; args.slice(0, 1)]);</span><br><span class="line">storiesOf(&apos;Button&apos;, module)</span><br><span class="line">    .addDecorator(story =&gt; &lt;div style=&#123;&#123; textAlign: &apos;center&apos; &#125;&#125;&gt;&#123;story()&#125;&lt;/div&gt;) // 当前组件加载装饰器</span><br><span class="line">    .add(&apos;基本用法&apos;, () =&gt; (</span><br><span class="line">            &lt;Button &#123;...events&#125;&gt;123&lt;/Button&gt;</span><br><span class="line">    ))</span><br></pre></td></tr></table></figure>
+<h5 id="4-addon-notes"><a href="#4-addon-notes" class="headerlink" title="4. addon-notes"></a>4. addon-notes</h5><p>可以在面板中添加 story 注释文本信息。<br><img src="https://pic1.zhimg.com/80/v2-6ce08942ea462bb16011edf891318678_hd.jpg" alt><br>addon-notes 只允许在面板中显示信息，有时候不方便我们查看组件 api 等详细信息。如果我们想要在组件旁边显示用法以及其他类型的文档介绍等信息，可以安装 <strong>addon-info（组件文档管理必备）</strong>。</p>
+<p>storybook 提供了许多 addons。</p>
+<ul>
+<li><strong>storybook-state:</strong> 添加 state 面板，展示或更新 state，重绘视图。</li>
+<li><strong>storyShots:</strong> 快照测试。</li>
+<li><strong>storybook-readme:</strong> 将 markdown 导入为 story 等。</li>
+</ul>
+<p>更多插件介绍详情<a href="https://storybook.js.org/addons/" target="_blank" rel="noopener">官网</a></p>
+<h4 id="三-写在后面"><a href="#三-写在后面" class="headerlink" title="三. 写在后面"></a>三. 写在后面</h4><p>这篇文章简单介绍了如何基础使用 storybook 工具集成显示 ui 组件，总体感觉是学习成本不算高。为了后期有便于更好的维护组件，有信心的提交代码，那测试功能必不可少。并且目前不能直接在 story 中修改 react 组件 state。下篇文章我们将集成 redux 便于管理数据，详细叙述 storybook 是如何利用基于 jest 的 addons 进行一系列的自动化测试以及手动测试。</p>
+
+    </div>
+
+    
+    
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束, 感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"><i class="fa fa-tag"></i> 前端</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/11/30/Node-js%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%BD%91%E9%A1%B5%E6%95%B0%E6%8D%AE%E6%8A%93%E5%8F%96/" rel="next" title="Node.js实现简单网页数据抓取">
+                  <i class="fa fa-chevron-left"></i> Node.js实现简单网页数据抓取
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/07/02/pointer-events%E4%BB%8B%E7%BB%8D/" rel="prev" title="pointer-events介绍">
+                  pointer-events介绍 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments" id="comments">
+    <div id="SOHUCS"></div>
+  </div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一-操作指南"><span class="nav-number">1.</span> <span class="nav-text">一. 操作指南</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#注意"><span class="nav-number">1.1.</span> <span class="nav-text">注意:</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二-插件"><span class="nav-number">2.</span> <span class="nav-text">二. 插件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-addon-storysource"><span class="nav-number">2.1.</span> <span class="nav-text">1. addon-storysource</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-addon-knobs"><span class="nav-number">2.2.</span> <span class="nav-text">2. addon-knobs</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#注意："><span class="nav-number">2.3.</span> <span class="nav-text">注意：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-addon-actions"><span class="nav-number">2.4.</span> <span class="nav-text">3. addon-actions</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-addon-notes"><span class="nav-number">2.5.</span> <span class="nav-text">4. addon-notes</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三-写在后面"><span class="nav-number">3.</span> <span class="nav-text">三. 写在后面</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="qing yi"
+    src="/images/qy_header1.jpeg">
+  <p class="site-author-name" itemprop="name">qing yi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhangtengjin" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;zhangtengjin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/zhang-teng-jin-58/activities" title="Zhihu &amp;rarr; https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;zhang-teng-jin-58&#x2F;activities" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>Zhihu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">qing yi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.2"></script><script src="/js/motion.js?v=7.4.2"></script>
+<script src="/js/schemes/pisces.js?v=7.4.2"></script>
+<script src="/js/next-boot.js?v=7.4.2"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  <script>
+  (function() {
+    var appid = 'cyuAQSPpI';
+    var conf = '691ad850a5b09022170745086e37f6e7';
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+    } else {
+      var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+    }
+  })();
+  </script>
+  <script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+</body>
+</html>
