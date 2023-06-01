@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/qy_header3.jpeg?v=7.4.2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/qy_header3.jpeg?v=7.4.2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/qy_header3.jpeg?v=7.4.2">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.2" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.2">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Part1 我们主要介绍了如何安装使用 Storybook 去编写基础 stories，渲染组件。Part2我们将一起了解如何编写组件文档、维护 stories 自身状态以及 Storybook 的持续部署。 一、讲在前面关注 Storybook，你会发现 Storybook 团队迭代速度非常快，使用的用户越来越多，github上的 star 也在增长。Storybook 在6月29日发布 v5">
+<meta name="keywords" content="前端">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Storybook初探（Part2）">
+<meta property="og:url" content="https:&#x2F;&#x2F;zhangtengjin.github.io&#x2F;2019&#x2F;07&#x2F;30&#x2F;Storybook%E5%88%9D%E6%8E%A2%EF%BC%88Part2%EF%BC%89&#x2F;index.html">
+<meta property="og:site_name" content="青忆个人博客">
+<meta property="og:description" content="Part1 我们主要介绍了如何安装使用 Storybook 去编写基础 stories，渲染组件。Part2我们将一起了解如何编写组件文档、维护 stories 自身状态以及 Storybook 的持续部署。 一、讲在前面关注 Storybook，你会发现 Storybook 团队迭代速度非常快，使用的用户越来越多，github上的 star 也在增长。Storybook 在6月29日发布 v5">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic4.zhimg.com&#x2F;80&#x2F;v2-e30497f9646aae11fa3e16b2f95ea017_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic4.zhimg.com&#x2F;80&#x2F;v2-94c15e3a21c0bc28b666d6a5b46ee1e7_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic2.zhimg.com&#x2F;80&#x2F;v2-500cbe76f091d5b5c81b03ba05dd0955_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic4.zhimg.com&#x2F;80&#x2F;v2-5dd40e4f82a83900dbcd47153838f7e7_hd.jpg">
+<meta property="og:updated_time" content="2019-12-20T07:27:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pic4.zhimg.com&#x2F;80&#x2F;v2-e30497f9646aae11fa3e16b2f95ea017_hd.jpg">
+
+<link rel="canonical" href="https://zhangtengjin.github.io/2019/07/30/Storybook%E5%88%9D%E6%8E%A2%EF%BC%88Part2%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Storybook初探（Part2） | 青忆个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">青忆个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">slowly</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhangtengjin.github.io/2019/07/30/Storybook%E5%88%9D%E6%8E%A2%EF%BC%88Part2%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/qy_header2.jpeg">
+      <meta itemprop="name" content="青忆">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="青忆个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Storybook初探（Part2）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-07-30 19:54:30" itemprop="dateCreated datePublished" datetime="2019-07-30T19:54:30+08:00">2019-07-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-20 15:27:44" itemprop="dateModified" datetime="2019-12-20T15:27:44+08:00">2019-12-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">web前端</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/2019/07/30/Storybook%E5%88%9D%E6%8E%A2%EF%BC%88Part2%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2019/07/30/Storybook初探（Part2）/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>Part1 我们主要介绍了如何安装使用 Storybook 去编写基础 stories，渲染组件。Part2我们将一起了解如何编写组件文档、维护 stories 自身状态以及 Storybook 的持续部署。</p>
+</blockquote><h4 id="一、讲在前面"><a href="#一、讲在前面" class="headerlink" title="一、讲在前面"></a>一、讲在前面</h4><p>关注 Storybook，你会发现 Storybook 团队迭代速度非常快，使用的用户越来越多，github上的 star 也在增长。Storybook 在6月29日发布 v5.1.9，<strong>Part2</strong> 是基于v5.1.9，由于与之前的 v4.x 的有一些配置不同，可能会遇到版本相关问题，建议将 Storybook 以及相关 addons 升级至 v5.1.9，具体升级教程可以参考<a href="https://medium.com/storybookjs/storybook-5-0-db1d0f9c83b8" target="_blank" rel="noopener">这篇文章</a>。</p><a id="more"></a>
+
+<h4 id="二、组件文档"><a href="#二、组件文档" class="headerlink" title="二、组件文档"></a>二、组件文档</h4><p>关于文档介绍，其实相关的 addons 有挺多 addon-notes，storybook-readme 以及 addon-info等。在 Part1，我们使用的是 addon-notes, 在 Part2 笔者改用 addon-info，原因在于addon-info 灵活度更高，可配置性强，用户可自定义其样式。我们简单了解下如何配置使用 addon-info。</p>
+<h5 id="1-如何覆盖-addon-info-自带样式"><a href="#1-如何覆盖-addon-info-自带样式" class="headerlink" title="1. 如何覆盖 addon-info 自带样式"></a>1. 如何覆盖 addon-info 自带样式</h5><p>首先，我们需要了解 addon 作用域，当我们在 config.js 文件中装饰 addon , 它将作用于全局stories，如需要对单个 stories 定制不同的样式，我们可以在 stories 添加的时候传递参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">import &#123; addDecorator, addParameters  &#125; from &apos;@storybook/react&apos;;</span><br><span class="line">import &#123; withInfo &#125; from &apos;@storybook/addon-info&apos;;</span><br><span class="line">addDecorator(withInfo); </span><br><span class="line">addParameters(&#123;</span><br><span class="line"> info: &#123;</span><br><span class="line"> inline: true,</span><br><span class="line"> styles: stylesheet =&gt; (&#123;</span><br><span class="line"> // Setting the style with a function</span><br><span class="line"> ...stylesheet,</span><br><span class="line"> infoBody: &#123;</span><br><span class="line"> ...stylesheet.infoBody,</span><br><span class="line"> padding: &apos;20px 40px 20px&apos;</span><br><span class="line">            &#125;,</span><br><span class="line"> header: &#123;</span><br><span class="line"> ...stylesheet.header,</span><br><span class="line"> h1: &#123;</span><br><span class="line"> ...stylesheet.header.h1,</span><br><span class="line"> // color: &apos;green&apos;,</span><br><span class="line">              &#125;,</span><br><span class="line">            &#125;,</span><br><span class="line">        &#125;),</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>我们只需要通过修改 info 中的 style 字段就可以自定义全局样式，具体如何覆盖原样式，可以参考 addon-info 的<a href="https://github.com/storybookjs/storybook/blob/master/addons/info/src/components/Story.js#L19" target="_blank" rel="noopener">原样式文件</a>。</p>
+<h5 id="2-自定义生成组件-props"><a href="#2-自定义生成组件-props" class="headerlink" title="2. 自定义生成组件 props"></a>2. 自定义生成组件 props</h5><p>addon-info 会自动识别组件传递的 props 并生成表格，但是精确度还是不够高，并且会将 antd 自带组件 prop 表也会渲染出来，这并不是我们想要的，发现可以通过 TableComponent 配置项自定义 props 表格， propTablesExclude 配置项从 Prop Tables 中排除其它组件，代码如下，读者也可以自定义自己想要的 props 表以及其样式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">const Red = props =&gt; &lt;span style=&#123;&#123; color: &apos;red&apos; &#125;&#125; &#123;...props&#125; /&gt;;</span><br><span class="line"> </span><br><span class="line"> const TableComponent = (propDefinitions) =&gt; &#123;</span><br><span class="line"> const props = propDefinitions.map(</span><br><span class="line">      (&#123; property, propType, required, description, defaultValue &#125;) =&gt; &#123;</span><br><span class="line"> return (</span><br><span class="line"> &lt;tr key=&#123;property&#125;&gt;</span><br><span class="line">            &lt;td&gt;</span><br><span class="line"> &#123;property&#125;</span><br><span class="line"> &#123;required ? &lt;Red&gt;*&lt;/Red&gt; : null&#125;</span><br><span class="line">            &lt;/td&gt;</span><br><span class="line">            &lt;td&gt;&#123;description&#125;&lt;/td&gt;</span><br><span class="line">            &lt;td&gt;&#123;propType&#125;&lt;/td&gt;</span><br><span class="line">            &lt;td&gt;&#123;defaultValue&#125;&lt;/td&gt;</span><br><span class="line">          &lt;/tr&gt;</span><br><span class="line">        );</span><br><span class="line">      &#125;</span><br><span class="line">    );</span><br><span class="line">    return (</span><br><span class="line"> &lt;table width=&quot;90%&quot;&gt;</span><br><span class="line">        &lt;thead&gt;</span><br><span class="line">          &lt;tr&gt;</span><br><span class="line">            &lt;th&gt;参数&lt;/th&gt;</span><br><span class="line">            &lt;th&gt;说明&lt;/th&gt;</span><br><span class="line">            &lt;th&gt;类型&lt;/th&gt;</span><br><span class="line">            &lt;th&gt;默认值&lt;/th&gt;</span><br><span class="line">          &lt;/tr&gt;</span><br><span class="line">        &lt;/thead&gt;</span><br><span class="line">        &lt;tbody&gt;&#123;props&#125;&lt;/tbody&gt;</span><br><span class="line">      &lt;/table&gt;</span><br><span class="line">    );</span><br><span class="line">  &#125;;</span><br></pre></td></tr></table></figure>
+
+<p> 因为每一个 stories 都需要渲染 prop 表，想着将自定义表这个方法单抽一个组件出来共用，但是会报错，确认过类型没问题后还是行不通，目前只能每个 stories 编写一个 props table。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-e30497f9646aae11fa3e16b2f95ea017_hd.jpg" alt></p>
+<p><strong>注意：</strong> 由于 addon-info 对 React jsx 语法不友好，在 Story Source 代码 展示中会出现<unkonw></unkonw>，查找资料之后，发现在 v5.2.0-alpha.30 有该问题的修复，只需要升级至该版本即可。</p>
+<h5 id="3-text-配置项"><a href="#3-text-配置项" class="headerlink" title="3. text 配置项"></a>3. text 配置项</h5><p>用作描述组件文档信息，支持 markdown 语法，但我觉得其用做组件使用示例或许会更好，因为其支持 <del>~</del>js 语法，用户可以 copy 组件基础使用代码。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-94c15e3a21c0bc28b666d6a5b46ee1e7_hd.jpg" alt></p>
+<p><strong>注意：</strong>在写入<del>~</del>js 这种语法是会报错的，因为我们在 markdown 中插入代码的时候会调用 syntaxhighlighter, 错误信息：TypeError: Cannot read property ‘defaultText’ of undefined</p>
+<p>解决方案: <a href="https://github.com/storybookjs/storybook/pull/6016" target="_blank" rel="noopener">https://github.com/storybookjs/storybook/pull/6016</a></p>
+<h4 id="三、stories-内部状态管理"><a href="#三、stories-内部状态管理" class="headerlink" title="三、stories 内部状态管理"></a>三、stories 内部状态管理</h4><p>一开始想到的是使用 redux 做为数据状态管理，但我们在 stories 仅仅需要维护单个组件内部状态，使用 redux 未必有点庞大，笔者使用的是 storybook-state 库，同 redux 一样，我们需要创建一个 store 保存状态和处理更新，我们在 store 中可以添加组件所需属性，通过 State 组件将 store 传递到 UI 组件，通过 store 的 get、set 方法更新数据。基础使用如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">import &#123; State, Store, StateDecorator &#125; from &quot;@sambego/storybook-state&quot;;</span><br><span class="line"></span><br><span class="line">const store = new Store(&#123;</span><br><span class="line">    visible: false</span><br><span class="line">&#125;);</span><br><span class="line">&lt;State store=&#123;store&#125;&gt;</span><br><span class="line">   &lt;SlidePane</span><br><span class="line">      visible=&#123;store.get(&quot;visible&quot;)&#125;</span><br><span class="line">      style=&#123;style&#125;</span><br><span class="line">      onClose=&#123;() =&gt; &#123;</span><br><span class="line">         action(&apos;我该关闭啦&apos;)</span><br><span class="line">         store.set(&#123;</span><br><span class="line">            visible: false</span><br><span class="line">          &#125;)</span><br><span class="line">      &#125;&#125;</span><br><span class="line">     &gt;</span><br><span class="line">         &lt;div&gt;&#123;children&#125;&lt;/div&gt;</span><br><span class="line">    &lt;/SlidePane&gt;</span><br><span class="line">&lt;/State&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="四、Storybook-部署"><a href="#四、Storybook-部署" class="headerlink" title="四、Storybook 部署"></a>四、Storybook 部署</h4><p>如果团队成员想查看 Storybook，值得庆幸的是, 在线部署 Storybook 很容易，Storybook 推荐我们使用 storybook-deployer 工具，将其部署到 github pages 等静态托管服务。这里我们使用 <strong>netlify</strong> 自动化部署，无需脚本文件即可实现自动编译生成静态网站。</p>
+<ol>
+<li><p>使用 github、gitlab 账号登录 netlify 网站。从 github、gitlab 导入我们要部署的仓库，在部署设置时，我们需要设置编译打包命令 ( npm run build-storybook )，打包后的静态文件所在目录（storybook-static），即可完成部署。若部署失败可查看日志解决。<br><img src="https://pic2.zhimg.com/80/v2-500cbe76f091d5b5c81b03ba05dd0955_hd.jpg" alt></p>
+</li>
+<li><p>部署成功之后，netlify 会为我们生成一个 netlify.com 的二级域名， 可以自定义二级域名，有需要也可以完全绑定自己的域名。<br><img src="https://pic4.zhimg.com/80/v2-5dd40e4f82a83900dbcd47153838f7e7_hd.jpg" alt></p>
+</li>
+<li><p>持续部署，netlify 检测到 master 分支有 push 操作，则会通知 webhook 触发新的构建和部署。</p>
+</li>
+</ol>
+<p>体验：感觉访问速度和阿里云的 ecs 相比还是有一些差距的，毕竟是免费的。</p>
+<h4 id="五、写在最后"><a href="#五、写在最后" class="headerlink" title="五、写在最后"></a>五、写在最后</h4><p>到这里，我们已经能够通过 Storybook 搭建我们的 UI 组件库啦 ，但是我们还缺少测试组件，话说没有测试功能的 Storybook 不是完整的 Storybook，私下有通过 jest 搭建测试框架，但是可能由于 jest 配置和 addon-storyshots 的配置有冲突，没能完成。后续随着组件量增加，以及组件复杂度，会完善测试这方面缺陷。</p>
+
+    </div>
+
+    
+    
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束, 感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"><i class="fa fa-tag"></i> 前端</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/07/02/pointer-events%E4%BB%8B%E7%BB%8D/" rel="next" title="pointer-events介绍">
+                  <i class="fa fa-chevron-left"></i> pointer-events介绍
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/01/06/%E6%88%91%E7%9A%842019/" rel="prev" title="我的2019">
+                  我的2019 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments" id="comments">
+    <div id="SOHUCS"></div>
+  </div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、讲在前面"><span class="nav-number">1.</span> <span class="nav-text">一、讲在前面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、组件文档"><span class="nav-number">2.</span> <span class="nav-text">二、组件文档</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-如何覆盖-addon-info-自带样式"><span class="nav-number">2.1.</span> <span class="nav-text">1. 如何覆盖 addon-info 自带样式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-自定义生成组件-props"><span class="nav-number">2.2.</span> <span class="nav-text">2. 自定义生成组件 props</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-text-配置项"><span class="nav-number">2.3.</span> <span class="nav-text">3. text 配置项</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、stories-内部状态管理"><span class="nav-number">3.</span> <span class="nav-text">三、stories 内部状态管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、Storybook-部署"><span class="nav-number">4.</span> <span class="nav-text">四、Storybook 部署</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、写在最后"><span class="nav-number">5.</span> <span class="nav-text">五、写在最后</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="青忆"
+    src="/images/qy_header2.jpeg">
+  <p class="site-author-name" itemprop="name">青忆</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhangtengjin" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;zhangtengjin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">浙ICP备 </a><a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null" rel="noopener" target="_blank">18026592号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">青忆</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.2"></script><script src="/js/motion.js?v=7.4.2"></script>
+<script src="/js/schemes/pisces.js?v=7.4.2"></script>
+<script src="/js/next-boot.js?v=7.4.2"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  <script>
+  (function() {
+    var appid = 'cyuAQSPpI';
+    var conf = '691ad850a5b09022170745086e37f6e7';
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+    } else {
+      var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+    }
+  })();
+  </script>
+  <script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+</body>
+</html>

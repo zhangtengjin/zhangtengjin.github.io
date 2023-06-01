@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/qy_header3.jpeg?v=7.4.2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/qy_header3.jpeg?v=7.4.2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/qy_header3.jpeg?v=7.4.2">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.2" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.2">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="由于自己的小项目需要后台支持，所以前段时间学习了下 Node.js。简单介绍下 Node.js，Node.js 是一个基于 JavaScript 语言和 V8 引擎运行在服务端的并发平台，在 Node.js 出现以后，使得 JavaScrip 不光能写前端的动态效果，交互效果，还能写 web 服务器，从此，前端工程师的触角向后延伸了一大块。Node.js 功能如此强大，但是我今天才初步学习Nod">
+<meta name="keywords" content="前端">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js实现简单网页数据抓取">
+<meta property="og:url" content="https:&#x2F;&#x2F;zhangtengjin.github.io&#x2F;2018&#x2F;11&#x2F;30&#x2F;Node-js%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%BD%91%E9%A1%B5%E6%95%B0%E6%8D%AE%E6%8A%93%E5%8F%96&#x2F;index.html">
+<meta property="og:site_name" content="青忆个人博客">
+<meta property="og:description" content="由于自己的小项目需要后台支持，所以前段时间学习了下 Node.js。简单介绍下 Node.js，Node.js 是一个基于 JavaScript 语言和 V8 引擎运行在服务端的并发平台，在 Node.js 出现以后，使得 JavaScrip 不光能写前端的动态效果，交互效果，还能写 web 服务器，从此，前端工程师的触角向后延伸了一大块。Node.js 功能如此强大，但是我今天才初步学习Nod">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic2.zhimg.com&#x2F;80&#x2F;v2-17686e372a33c4a9f65a8ff712c81d0d_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic3.zhimg.com&#x2F;80&#x2F;v2-9bbf7057f2ce74583b3b9020e77135ca_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic1.zhimg.com&#x2F;80&#x2F;v2-baaddf3d85d330e7e9b5104566c367a4_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic2.zhimg.com&#x2F;80&#x2F;v2-657eb2050b2ae8b68be4c0e93112c7e1_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic4.zhimg.com&#x2F;80&#x2F;v2-ca593b0d391aa2e864b88bb455fce8c3_hd.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic3.zhimg.com&#x2F;80&#x2F;v2-523d29fe8aa207121bb9c1cebe257aae_hd.jpg">
+<meta property="og:updated_time" content="2020-03-05T03:49:05.046Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pic2.zhimg.com&#x2F;80&#x2F;v2-17686e372a33c4a9f65a8ff712c81d0d_hd.jpg">
+
+<link rel="canonical" href="https://zhangtengjin.github.io/2018/11/30/Node-js%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%BD%91%E9%A1%B5%E6%95%B0%E6%8D%AE%E6%8A%93%E5%8F%96/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Node.js实现简单网页数据抓取 | 青忆个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">青忆个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">slowly</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhangtengjin.github.io/2018/11/30/Node-js%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%BD%91%E9%A1%B5%E6%95%B0%E6%8D%AE%E6%8A%93%E5%8F%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/qy_header2.jpeg">
+      <meta itemprop="name" content="青忆">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="青忆个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Node.js实现简单网页数据抓取
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-11-30 19:33:25" itemprop="dateCreated datePublished" datetime="2018-11-30T19:33:25+08:00">2018-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-05 11:49:05" itemprop="dateModified" datetime="2020-03-05T11:49:05+08:00">2020-03-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">web前端</span>
+                  </a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Changyan：</span>
+    
+    
+      <a title="changyan" href="/2018/11/30/Node-js%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%BD%91%E9%A1%B5%E6%95%B0%E6%8D%AE%E6%8A%93%E5%8F%96/#SOHUCS" itemprop="discussionUrl">
+        <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2018/11/30/Node-js实现简单网页数据抓取/" itemprop="commentCount"></span>
+      </a>
+    
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>由于自己的小项目需要后台支持，所以前段时间学习了下 Node.js。简单介绍下 Node.js，Node.js 是一个基于 JavaScript 语言和 V8 引擎运行在服务端的并发平台，在 Node.js 出现以后，使得 JavaScrip 不光能写前端的动态效果，交互效果，还能写 web 服务器，从此，前端工程师的触角向后延伸了一大块。Node.js 功能如此强大，但是我今天才初步学习Node.js，对于一个前端人员来说实在是很惭愧。</p>
+</blockquote><a id="more"></a>
+<h4 id="一-页面结构分析"><a href="#一-页面结构分析" class="headerlink" title="一. 页面结构分析"></a>一. 页面结构分析</h4><p>话不多说，正式进入主题。今天我们要抓取的网站是笔者的大学校报（校园资讯），首先我们来简单分析下网站的页面结构。</p>
+<h5 id="分页规律："><a href="#分页规律：" class="headerlink" title="分页规律："></a>分页规律：</h5><p>第一页 <a href="http://news.ecjtu.jx.cn/1920/list.htm" target="_blank" rel="noopener">http://news.ecjtu.jx.cn/1920/list.htm</a></p>
+<p>第二页：<a href="http://news.ecjtu.jx.cn/1920/list2.htm" target="_blank" rel="noopener">http://news.ecjtu.jx.cn/1920/list2.htm</a></p>
+<p>第三页：<a href="http://news.ecjtu.jx.cn/1920/list3.htm" target="_blank" rel="noopener">http://news.ecjtu.jx.cn/1920/list3.htm</a></p>
+<p>由此可以看出，页面都是以list+page作为分页的。</p>
+<h5 id="文章列表页分析："><a href="#文章列表页分析：" class="headerlink" title="文章列表页分析："></a>文章列表页分析：</h5><p><img src="https://pic2.zhimg.com/80/v2-17686e372a33c4a9f65a8ff712c81d0d_hd.jpg" alt></p>
+<p>我们可以看到文章列表是以table格式显示的，并且每个class为listName的第一个a标签就是文章详情的入口。</p>
+<h5 id="文章详情页分析："><a href="#文章详情页分析：" class="headerlink" title="文章详情页分析："></a>文章详情页分析：</h5><p><img src="https://pic3.zhimg.com/80/v2-9bbf7057f2ce74583b3b9020e77135ca_hd.jpg" alt><br><img src="https://pic1.zhimg.com/80/v2-baaddf3d85d330e7e9b5104566c367a4_hd.jpg" alt></p>
+<p>由此可以发现页面规律：</p>
+<p>文章标题： .actTitle 文章详情： .postmeta 正文图片：.wp_articlecontent&gt;p&gt;img</p>
+<p>浏览次数： .WP_VisitCount</p>
+<h4 id="二-代码编写"><a href="#二-代码编写" class="headerlink" title="二. 代码编写"></a>二. 代码编写</h4><p>在编写代码之前，我们先了解一些需要用到的模块，由于http模块、fs模块都是Node.js内置的包，因此不需要额外添加。</p>
+<p>superagent：它是一个强大并且可读性很好的轻量级ajax API，是一个关于HTTP方面的一个库，而且它可以将链式写法玩的出神入化。<strong>（这里笔者只是尝试下 superagent 写法，使用http 模块一样效果）</strong></p>
+<p>cheerio：可以理解成一个 Node.js 版的 jquery，用来从网页中以 css selector 取数据，使用方式跟 jquery 一模一样。</p>
+<p>安装这些模块</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install superagent cheerio url --save</span><br></pre></td></tr></table></figure>
+
+<h5 id="完整代码："><a href="#完整代码：" class="headerlink" title="完整代码："></a>完整代码：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">const superagent = require(&apos;superagent&apos;);</span><br><span class="line">const cheerio = require(&apos;cheerio&apos;);</span><br><span class="line">const async = require(&apos;async&apos;);</span><br><span class="line">const fs = require(&apos;fs&apos;);</span><br><span class="line">const url = require(&apos;url&apos;);</span><br><span class="line">const request = require(&apos;request&apos;);</span><br><span class="line"></span><br><span class="line">const urlHead = &apos;http://news.ecjtu.jx.cn&apos;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">let allUrl = [];  // 所有文章连接</span><br><span class="line">let imgUrlList = [];  // 图片url</span><br><span class="line">//爬取10页</span><br><span class="line">for(let i = 0; i &lt;= 9; i++) &#123;</span><br><span class="line">    // 循环请求文章列表页</span><br><span class="line">    requestUrl = &apos;http://news.ecjtu.jx.cn/1920/list&apos; + i + &apos;.htm&apos;;</span><br><span class="line">    superagent.get(requestUrl)</span><br><span class="line">        .end((err,res) =&gt; &#123;</span><br><span class="line">            if(err) &#123;</span><br><span class="line">                return console.error(error);</span><br><span class="line">            &#125;</span><br><span class="line">            // cherrio模块获取页面内容</span><br><span class="line">            let $ = cheerio.load(res.text);</span><br><span class="line">            // 获取文章列表所有链接</span><br><span class="line">            $(&apos;.listName&gt;a:first-child&apos;).each((idx,elem) =&gt; &#123;</span><br><span class="line">                let $elem = $(elem);</span><br><span class="line">                let href = url.resolve(requestUrl,$elem.attr(&apos;href&apos;));</span><br><span class="line">                allUrl.push(href);</span><br><span class="line">                 // 文章详情页信息</span><br><span class="line">                superagent.get(href)</span><br><span class="line">                    .end((err,res) =&gt; &#123;</span><br><span class="line">                        if(err) &#123;</span><br><span class="line">                            return console.error(error);</span><br><span class="line">                        &#125;</span><br><span class="line">                        let $ = cheerio.load(res.text);</span><br><span class="line">                        let _href = href;</span><br><span class="line">                        // 对文章图片url需处理</span><br><span class="line">                        let imgUrl = $(&apos;.wp_articlecontent&gt;p&gt;img&apos;).attr(&apos;src&apos;) ||</span><br><span class="line">                         &quot;http://xw.ecjtu.jx.cn/_upload/article/images/c7/89/be9f5e4845c69f6991ad006ab241/f2ba53cf-e7f4-497b-bec8-1b254e2b5f6c.jpg&quot;;</span><br><span class="line">                        // 文章信息</span><br><span class="line">                        let articleInfo = &#123;</span><br><span class="line">                            &quot;address&quot;: _href,</span><br><span class="line">                            &quot;title&quot;: $(&apos;.actTitle&apos;).text().trim(),</span><br><span class="line">                            &quot;detail&quot;: $(&apos;.postmeta&apos;).text().trim(),</span><br><span class="line">                            &quot;view&quot;: $(&apos;.WP_VisitCount&apos;).text(),</span><br><span class="line">                            &quot;imgSrc&quot;: $(&apos;.wp_articlecontent&gt;p&gt;img&apos;).attr(&apos;src&apos;) || &quot;&quot;,</span><br><span class="line">                        &#125;</span><br><span class="line">                        if( imgUrl.indexOf(&quot;http&quot;) == -1 ) &#123;</span><br><span class="line">                            imgUrl =  urlHead + imgUrl;</span><br><span class="line">                        &#125;</span><br><span class="line">                        imgUrlList.push(imgUrl);</span><br><span class="line">                        console.log(articleInfo);</span><br><span class="line">                        console.log(imgUrl)</span><br><span class="line">                        console.log(imgUrlList);</span><br><span class="line">                        //  注意有些网站需要设置UA才可以爬取网页内容</span><br><span class="line">                        const options = &#123;</span><br><span class="line">                            url: imgUrl,</span><br><span class="line">                            headers: &#123;</span><br><span class="line">                                &apos;User-Agent&apos;: &apos;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&apos;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                        // 数据存储在本地文件中</span><br><span class="line">                        fs.appendFile(&apos;data/result.json&apos;, JSON.stringify(articleInfo), &apos;utf-8&apos;,(err) =&gt; &#123;</span><br><span class="line">                            if(err) throw new Error(&quot;数据存储失败....&quot;);</span><br><span class="line">                            console.log(&apos;存储成功!&apos;);</span><br><span class="line">                        &#125;)</span><br><span class="line">                        // 同步存储图片</span><br><span class="line">                        request.head(options,(err,res,body) =&gt; &#123;</span><br><span class="line">                            if(err)  console.log(err);</span><br><span class="line">                        &#125;)</span><br><span class="line">                        request(options).pipe(fs.createWriteStream(&apos;./ecjtuImages/&apos; + (new Date()).getTime() +&apos;.jpg&apos;));</span><br><span class="line">                        // 异步获取图片需要使用到async异步下载</span><br><span class="line">                        /*</span><br><span class="line">                        const downloadPic = (src,dest) =&gt; &#123;</span><br><span class="line">                          request(src).pipe(fs.createWriteStream(dest)).on(&apos;close&apos;,function()&#123;</span><br><span class="line">                            console.log(&apos;pic saved!&apos;)</span><br><span class="line">                          &#125;)</span><br><span class="line">                        &#125;</span><br><span class="line">                        async.mapSeries(imgUrlList,function(item, callback)&#123;</span><br><span class="line">                          setTimeout(function()&#123;</span><br><span class="line">                            downloadPic(item, &apos;./ecjtuimages/&apos;+ (new Date()).getTime() +&apos;.jpg&apos;);</span><br><span class="line">                            callback(null, item);</span><br><span class="line">                          &#125;,400);</span><br><span class="line">                        &#125;, function(err, results)&#123;&#125;);</span><br><span class="line">                        */</span><br><span class="line">                    &#125;)</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码中使用了 Node.js 中模块的一些基本用法，有不懂的同学可以看看<a href="https://nodejs.org/en/docs/" target="_blank" rel="noopener">官网</a>。</p>
+<p>我们将爬取的文章信息储存在本地 result.json 文件中，图片储存在 ecjtuimages 文件夹中。</p>
+<p><strong>注意：有些网站需要设置User-Agent才能爬取网页信息哦。并且当你需要下载大量图片时，可以使用async模块的mapSeries方法异步下载哦。</strong></p>
+<h4 id="三-运行程序"><a href="#三-运行程序" class="headerlink" title="三. 运行程序"></a>三. 运行程序</h4><p>完成上述两步操作之后，运行 node index.js ，我们可以看到程序开始爬取了。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-657eb2050b2ae8b68be4c0e93112c7e1_hd.jpg" alt></p>
+<p>打开 <strong>result.json</strong> 文件和 <strong>ecjtuimages</strong> 文件夹查看是否存储成功。<br><img src="https://pic4.zhimg.com/80/v2-ca593b0d391aa2e864b88bb455fce8c3_hd.jpg" alt></p>
+<p><img src="https://pic3.zhimg.com/80/v2-523d29fe8aa207121bb9c1cebe257aae_hd.jpg" alt></p>
+<p>到这里，Node.js 简单的爬取网页数据就结束了。有兴趣的同学也可以引入 mysql，将数据直接存储在数据库中。(笔者私下爬取了很多精彩丰富的内容，欢迎来扰)</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>此次爬取的网站安全性较差，但有些网站的反爬虫技术做的很好，再使用这种方法就无法爬取了哦。 这次只是简单的 Node.js 初试，仅仅是初探，就已经体会到了 Node.Js 的魅力。更多Node.js 强大的功能我们一起学习。如文章有误之处，欢迎指正。</p>
+
+    </div>
+
+    
+    
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束, 感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"><i class="fa fa-tag"></i> 前端</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/09/19/Webpack4-x%E5%AE%9E%E8%B7%B5/" rel="next" title="Webpack4.x实践">
+                  <i class="fa fa-chevron-left"></i> Webpack4.x实践
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/03/20/Storybook%E5%88%9D%E6%8E%A2-Part-1/" rel="prev" title="Storybook初探 (Part 1)">
+                  Storybook初探 (Part 1) <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments" id="comments">
+    <div id="SOHUCS"></div>
+  </div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一-页面结构分析"><span class="nav-number">1.</span> <span class="nav-text">一. 页面结构分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#分页规律："><span class="nav-number">1.1.</span> <span class="nav-text">分页规律：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#文章列表页分析："><span class="nav-number">1.2.</span> <span class="nav-text">文章列表页分析：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#文章详情页分析："><span class="nav-number">1.3.</span> <span class="nav-text">文章详情页分析：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二-代码编写"><span class="nav-number">2.</span> <span class="nav-text">二. 代码编写</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#完整代码："><span class="nav-number">2.1.</span> <span class="nav-text">完整代码：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三-运行程序"><span class="nav-number">3.</span> <span class="nav-text">三. 运行程序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="青忆"
+    src="/images/qy_header2.jpeg">
+  <p class="site-author-name" itemprop="name">青忆</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zhangtengjin" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;zhangtengjin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">浙ICP备 </a><a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null" rel="noopener" target="_blank">18026592号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">青忆</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.2"></script><script src="/js/motion.js?v=7.4.2"></script>
+<script src="/js/schemes/pisces.js?v=7.4.2"></script>
+<script src="/js/next-boot.js?v=7.4.2"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  <script>
+  (function() {
+    var appid = 'cyuAQSPpI';
+    var conf = '691ad850a5b09022170745086e37f6e7';
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+    } else {
+      var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+    }
+  })();
+  </script>
+  <script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+</body>
+</html>
